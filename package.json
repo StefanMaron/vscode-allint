@@ -3,12 +3,15 @@
     "displayName": "AL Lint",
     "description": "Check your code for maintainability and upgradeability",
     "license": "MIT",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "publisher": "StefanMaron",
     "icon": "ALLint_icon.png",
+    "engines": {
+        "vscode": "^1.22.0"
+    },
     "repository": {
         "type": "git",
-        "url": "https://github.com/markbrummel/vscode-allint.git"
+        "url": "https://github.com/stefanmaron/vscode-allint.git"
     },
     "scripts": {
         "postinstall": "cd server && npm install && cd ../client && npm install && cd ..",

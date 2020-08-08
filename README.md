@@ -70,6 +70,10 @@ Next up is the refactoring command and then uploading the summary to a report
 
 ## Release Notes
 
+### 0.1.4
+Some refactoring. 
+Added a check on function length. By default any function longer then 40 lines will be warned.
+
 ### 0.1.3
 
 Fixed a number of issues reported on GitHub.

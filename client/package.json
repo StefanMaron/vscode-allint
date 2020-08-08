@@ -1,14 +1,14 @@
 {
     "name": "allint",
-    "displayName": "NAV Skills AL Lint",
+    "displayName": "AL Lint",
     "description": "Check your code for maintainability and upgradability",
     "license": "MIT",
-    "version": "0.1.3",
-    "publisher": "MarkBrummel",
+    "version": "0.1.4",
+    "publisher": "StefanMaron",
     "icon": "ALLint_icon.png",
     "repository": {
         "type": "git",
-        "url": "https://github.com/markbrummel/vscode-allint.git"
+        "url": "https://github.com/stefanmaron/vscode-allint.git"
     },
     "engines": {
         "vscode": "^1.16.0"
@@ -89,24 +89,15 @@
         "commands": [
             {
                 "command": "Refactor",
-                "title": "AL: Refactor (NAV-Skills)"
+                "title": "AL: Refactor (AL Lint)"
             },
             {
                 "command": "CleanCode",
-                "title": "AL: Clean Code (NAV-Skills)"
+                "title": "AL: Clean Code (AL Lint)"
             }
         ]
     },
-    "scripts": {
-        "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -p ./",
-        "watch": "tsc -w -p ./",
-        "update-vscode": "node ./node_modules/vscode/bin/install",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test"
-    },
     "dependencies": {
-        "vscode": "^1.1.5",
         "vscode-languageclient": "^4.1.4"
     }
 }
