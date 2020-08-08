@@ -1,12 +1,12 @@
-# NAV Skills AL Lint
+# AL Lint
 
-The NAV Skills extension is designed for AL and Dynamics NAV. It allows you to refactor code into a new function or codeunit and let's you test an object against guidelines for clean code.
+The AL Lint extension is designed for AL. The main purpose is to test AL Code against guidelines for clean code.
 
-[![Marketplace](https://vsmarketplacebadge.apphb.com/version-short/MarkBrummel.allint.svg)](https://marketplace.visualstudio.com/items?itemName=MarkBrummel.allint)
-[![Installs](https://vsmarketplacebadge.apphb.com/installs/MarkBrummel.allint.svg)](https://marketplace.visualstudio.com/items?itemName=MarkBrummel.allint)
-[![GitHub issues](https://img.shields.io/github/issues/markbrummel/vscode-allint.svg)](https://github.com/markbrummel/vscode-allint/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/markbrummel/vscode-allint.svg)](https://github.com/markbrummel/vscode-allint/pulls)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/markbrummel/vscode-allint/master/LICENSE)
+[![Marketplace](https://vsmarketplacebadge.apphb.com/version-short/StefanMaron.allint.svg)](https://marketplace.visualstudio.com/items?itemName=StefanMaron.allint)
+[![Installs](https://vsmarketplacebadge.apphb.com/installs/StefanMaron.allint.svg)](https://marketplace.visualstudio.com/items?itemName=StefanMaron.allint)
+[![GitHub issues](https://img.shields.io/github/issues/StefanMaron/vscode-allint.svg)](https://github.com/StefanMaron/vscode-allint/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/StefanMaron/vscode-allint.svg)](https://github.com/StefanMaron/vscode-allint/pulls)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/StefanMaron/vscode-allint/master/LICENSE)
 
 ## Features
 
@@ -29,6 +29,7 @@ Some AL code
 - `allint.checkcommit` - check code for COMMIT.
 - `allint.checkhungariannotation` - check code for hungarian notation.
 - `allint.hungariannotationoptions` - defines Hungarian Notation options.
+- `allint.maxnumberoffunctionlines` - The limit how many lines a function should have. Blank lines and comments are not taken into account. Set to 0 to deactivate.
 
 ## Hungarian Notation Options
 
