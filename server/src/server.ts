@@ -1,14 +1,13 @@
 'use strict';
 import {
-	IPCMessageReader, IPCMessageWriter, createConnection, IConnection, TextDocuments, TextDocument,
-	Diagnostic, InitializeResult
+	createConnection, TextDocuments, TextDocument, ProposedFeatures, Diagnostic, InitializeResult, combineConsoleFeatures
 } from 'vscode-languageserver';
 import { alObject } from './alobject';
-import { checkForCommit, checkForWithInTableAndPage, checkFunctionReservedWord, checkFunctionForHungarianNotation, checkFieldForHungarianNotation, checkVariableForHungarianNotation, checkVariableForIntegerDeclaration, checkVariableForTemporary, checkVariableForTextConst, checkVariableForReservedWords, checkVariableAlreadyUsed, checkVariableNameForUnderScore, checkForMissingDrillDownPageId, checkForMissingLookupPageId } from './diagnostics';
+import { checkForCommit, checkForWithInTableAndPage, checkFunctionReservedWord, checkFunctionForHungarianNotation, checkFieldForHungarianNotation, checkVariableForHungarianNotation, checkVariableForIntegerDeclaration, checkVariableForTemporary, checkVariableForTextConst, checkVariableForReservedWords, checkVariableNameForUnderScore, checkForMissingDrillDownPageId, checkForMissingLookupPageId, checkFunctionForNoOfLines } from './diagnostics';
 import { onCodeActionHandler } from './codeActions';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
-let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
+let connection = createConnection(ProposedFeatures.all);
 
 // Create a simple text document manager. The text document manager
 // supports full document sync only
@@ -26,10 +25,6 @@ connection.onInitialize((params): InitializeResult => {
 		capabilities: {
 			// Tell the client that the server works in FULL text document sync mode
 			textDocumentSync: documents.syncKind,
-			// Tell the client that the server support code complete
-			// completionProvider: {
-			// 	resolveProvider: true
-			// }
 			codeActionProvider: true
 		}
 	}
@@ -56,10 +51,12 @@ let checkspecialcharactersinvariablenames: boolean;
 let hungariannotationoptions: string;
 let checkdrilldownpageid: boolean;
 let checklookuppageid: boolean;
+let maxnumberoffunctionlines: number;
 // The settings have changed. Is send on server activation
 // as well.
 connection.onDidChangeConfiguration((change) => {
 	let settings = <Settings>change.settings;
+	
 	enabled = settings.allint.enabled;
 	statusbar = settings.allint.statusbar;
 	checkcommit = settings.allint.checkcommit;
@@ -68,6 +65,7 @@ connection.onDidChangeConfiguration((change) => {
 	hungariannotationoptions = settings.allint.hungariannotationoptions;
 	checkdrilldownpageid = settings.allint.checkdrilldownpageid;
 	checklookuppageid = settings.allint.checklookuppageid;
+	maxnumberoffunctionlines = settings.allint.maxnumberoffunctionlines;
 	// Revalidate any open text documents
 	documents.all().forEach(validateAlDocument);
 });
@@ -78,47 +76,54 @@ function validateAlDocument(alDocument: TextDocument): void {
 		connection.sendDiagnostics({ uri: alDocument.uri, diagnostics });
 		return;
 	}
+
 	let lines = alDocument.getText().split(/\r?\n/g);
 	let myObject = new alObject(alDocument.getText(), hungariannotationoptions);
+
 	if (checkdrilldownpageid)
 		checkForMissingDrillDownPageId(diagnostics, myObject);
+
 	if (checklookuppageid)
 		checkForMissingLookupPageId(diagnostics, myObject);
-	lines.forEach((line, i) => {
 
-		if (myObject.alLine[i].isCode) {
+	lines.forEach((line, CurrentLineNo) => {
+
+		if (myObject.alLine[CurrentLineNo].isCode) {
 			if (checkcommit)
-				checkForCommit(line.toUpperCase(), diagnostics, i);
-			checkForWithInTableAndPage(line.toUpperCase(), diagnostics, myObject, i);
+				checkForCommit(line.toUpperCase(), diagnostics, CurrentLineNo);
+
+			checkForWithInTableAndPage(line.toUpperCase(), diagnostics, myObject, CurrentLineNo);
 		}
 
-
 		myObject.alFunction.forEach(alFunction => {
-			if (alFunction.startsAtLineNo == i + 1) {
+			if (alFunction.startsAtLineNo == CurrentLineNo + 1) {
+				checkFunctionForNoOfLines(alFunction, line, diagnostics, CurrentLineNo, maxnumberoffunctionlines);
+				checkFunctionReservedWord(alFunction, line, diagnostics, CurrentLineNo);
+
 				if (checkhungariannotation)
-					checkFunctionForHungarianNotation(alFunction, line, diagnostics, i);
-				checkFunctionReservedWord(alFunction, line, diagnostics, i);
+					checkFunctionForHungarianNotation(alFunction, line, diagnostics, CurrentLineNo);					
 			}
 		});
+
 		myObject.alField.forEach(alField => {
-			if (alField.lineNumber == i + 1) {
+			if (alField.lineNumber == CurrentLineNo + 1) {
 				if (checkhungariannotation)
-					checkFieldForHungarianNotation(alField, line, diagnostics, i);
+					checkFieldForHungarianNotation(alField, line, diagnostics, CurrentLineNo);
 			}
 		});
 
 		myObject.alVariable.forEach(alVariable => {
-			if (alVariable.lineNumber == i + 1) {
+			if (alVariable.lineNumber == CurrentLineNo + 1) {
 				if (checkhungariannotation)
-					checkVariableForHungarianNotation(alVariable, line, diagnostics, i);
-				checkVariableForIntegerDeclaration(alVariable, line, diagnostics, i);
-				checkVariableForTemporary(alVariable, line, diagnostics, i);
-				checkVariableForTextConst(alVariable, line, diagnostics, i);
-				checkVariableForReservedWords(alVariable, line, diagnostics, i);
-				//checkVariableUnUsed(alVariable, line, diagnostics, i);
-				checkVariableAlreadyUsed(myObject, alVariable, line, diagnostics, i);
+					checkVariableForHungarianNotation(alVariable, line, diagnostics, CurrentLineNo);
+
+				checkVariableForIntegerDeclaration(alVariable, line, diagnostics, CurrentLineNo);
+				checkVariableForTemporary(alVariable, line, diagnostics, CurrentLineNo);
+				checkVariableForTextConst(alVariable, line, diagnostics, CurrentLineNo);
+				checkVariableForReservedWords(alVariable, line, diagnostics, CurrentLineNo);
+
 				if (checkspecialcharactersinvariablenames)
-					checkVariableNameForUnderScore(alVariable, line, diagnostics, i);
+					checkVariableNameForUnderScore(alVariable, line, diagnostics, CurrentLineNo);
 			}
 		});
 	})

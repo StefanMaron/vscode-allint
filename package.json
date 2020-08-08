@@ -1,10 +1,10 @@
 {
     "name": "allint",
-    "displayName": "NAV Skills AL Lint",
-    "description": "Check your code for maintainability and upgradability",
+    "displayName": "AL Lint",
+    "description": "Check your code for maintainability and upgradeability",
     "license": "MIT",
     "version": "0.1.3",
-    "publisher": "MarkBrummel",
+    "publisher": "StefanMaron",
     "icon": "ALLint_icon.png",
     "repository": {
         "type": "git",

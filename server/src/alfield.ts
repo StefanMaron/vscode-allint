@@ -29,7 +29,7 @@ export class alField {
         let hungarianOptions = new alHungarianOptions(newHungariannotationoptions);
 
         hungarianOptions.alHungarianOption.forEach(hungarianOption => {
-            if ((hungarianOption.alType == 'FIELD') && (this.isHungarianNotation == false)) {
+            if ((hungarianOption.alType == 'FIELD') && (this.isHungarianNotation == false) && (this.name)) {
                 this.isHungarianNotation = (this.name.toUpperCase().indexOf(hungarianOption.abbreviation) != -1);
             }
         });

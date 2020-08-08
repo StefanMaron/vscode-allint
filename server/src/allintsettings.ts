@@ -8,4 +8,5 @@ interface AlLintSettings {
 	hungariannotationoptions: string;
 	checkdrilldownpageid: boolean;
 	checklookuppageid: boolean;
+	maxnumberoffunctionlines:number;
 }

@@ -78,14 +78,16 @@ export class alFunction {
             if ((i == 1) && (line.indexOf('VAR') > 0)) {
                 inVariableSection = true;
             }
-            if ((inCodeSection) && (line.length > 0)) {
+            if ((inCodeSection) && (line.trim().length > 0)) {
                 this.businessLogic = this.businessLogic + line.trim();
                 this.numberOfLines++;
             }
-            if (line.indexOf('BEGIN') > 0) {
+            if (line.includes('BEGIN')) {
                 inVariableSection = false;
                 inCodeSection = true;
             }
+
+
             if ((inVariableSection) && (i > 1)) {
                 this.alVariable[p] = new alVariable(line, i + startsAt, false);
                 p++;

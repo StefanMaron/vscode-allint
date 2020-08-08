@@ -480,6 +480,6 @@ export function isReserved(value: string): boolean {
         value == 'WRITEMODE' ||
         value == 'WRITEPERMISSION' ||
         value == 'WRITETEXT' ||
-        value == 'Yes' ||
+        value == 'YES' ||
         value == 'YIELD');
 }

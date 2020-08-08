@@ -16,7 +16,7 @@ export function refactor(editor: TextEditor) {
     let alCode = editor.document.getText(oldSelection);
     let myObject = new alObject(editor);
 
-    console.log(alCode);
+    //console.log(alCode);
     var newFunctioName: string = "foo";
 
     //    newFunctioName = window.showInputBox({

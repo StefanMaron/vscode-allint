@@ -54,7 +54,27 @@ export class alObject {
                 inFunction = true;
                 inFieldsSection = false;
                 inVariableSection = false;
-                if (firstTime == true) {
+                // if (firstTime == true) {
+                //     this.alFunction.push();
+                //     p++;
+                //     this.alFunction[p] = new alFunction(functionContent, startsAt, i);
+                //     if (this.alFunction[p].maintainabilityIndex < this.maintainabilityIndex) {
+                //         this.maintainabilityIndex = this.alFunction[p].maintainabilityIndex;
+                //     }
+                //     functionContent = "";
+                // }
+                firstTime = true;
+                startsAt = i + 1;
+
+            }
+            if (line.trim().toUpperCase().includes('BEGIN') || line.trim().toUpperCase().includes('CASE ')) {
+                beginEnd += 1;
+            }
+            if (line.trim().toUpperCase().includes('END;')) {
+                beginEnd -= 1;
+                
+                if (beginEnd == 0) {
+                    inFunction = false;
                     this.alFunction.push();
                     p++;
                     this.alFunction[p] = new alFunction(functionContent, startsAt, i);
@@ -62,18 +82,6 @@ export class alObject {
                         this.maintainabilityIndex = this.alFunction[p].maintainabilityIndex;
                     }
                     functionContent = "";
-                }
-                firstTime = true;
-                startsAt = i + 1;
-
-            }
-            if (line.trim().toUpperCase() == 'BEGIN') {
-                beginEnd += 1;
-            }
-            if (line.trim().toUpperCase() == 'END;') {
-                beginEnd -= 1;
-                if (beginEnd == 0) {
-                    inFunction = false;
                 }
             }
             this.alLine[i].isCode = beginEnd >= 1;
@@ -110,12 +118,12 @@ export class alObject {
         })
 
         // Also Fetch the last function
-        this.alFunction.push();
-        p++;
-        this.alFunction[p] = new alFunction(functionContent, startsAt, lines.length);
-        if (this.alFunction[p].maintainabilityIndex < this.maintainabilityIndex) {
-            this.maintainabilityIndex = this.alFunction[p].maintainabilityIndex;
-        }
+        // this.alFunction.push();
+        // p++;
+        // this.alFunction[p] = new alFunction(functionContent, startsAt, lines.length);
+        // if (this.alFunction[p].maintainabilityIndex < this.maintainabilityIndex) {
+        //     this.maintainabilityIndex = this.alFunction[p].maintainabilityIndex;
+        // }
 
         // Add LocalVariables for easier diagnostics
         this.alFunction.forEach(alFunction => {

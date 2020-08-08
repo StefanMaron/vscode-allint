@@ -14,7 +14,7 @@
         "vscode": "^1.16.0"
     },
     "categories": [
-        "Languages",
+        "Programming Languages",
         "Linters"
     ],
     "activationEvents": [
@@ -68,6 +68,11 @@
                     "default": "false",
                     "description": "Checks if every Table has a LookupPageID"
                 },
+                "allint.maxnumberoffunctionlines": {
+                    "type":"number",
+                    "default": 40,
+                    "description": "The limit how many lines a function can have. Blank lines and comments are not taken into account. Set to 0 to deaktivate."
+                },
                 "allint.trace.server": {
                     "scope": "window",
                     "type": "string",
@@ -102,6 +107,6 @@
     },
     "dependencies": {
         "vscode": "^1.1.5",
-        "vscode-languageclient": "^3.4.2"
+        "vscode-languageclient": "^4.1.4"
     }
 }
