@@ -77,7 +77,10 @@ function validateAlDocument(alDocument: TextDocument): void {
 		return;
 	}
 
-	let lines = alDocument.getText().split(/\r?\n/g);
+	let alDocumentWithoutBlockComments = alDocument.getText().replace(/\/\*.*?\*\//isg,''); // remove all block comments before splitting
+	let lines = alDocumentWithoutBlockComments.split(/\r?\n/g);
+	lines = lines.filter(a => !a.trim().startsWith('//')) // remove all lines with comments
+
 	let myObject = new alObject(alDocument.getText(), hungariannotationoptions);
 
 	if (checkdrilldownpageid)
