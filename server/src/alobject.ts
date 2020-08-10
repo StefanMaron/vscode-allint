@@ -37,6 +37,7 @@ export class alObject {
         var hungariannotationoptions = newHungariannotationoptions;
 
         let lines = this.content.split(/\r?\n/g);
+        lines = lines.filter(a => !a.trim().startsWith('//')) // remove all lines with comments
 
         lines.forEach((line, i) => {
             this.alLine.push();

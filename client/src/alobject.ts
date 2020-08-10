@@ -34,6 +34,7 @@ export class alObject {
         var beginEnd: number = 0;
 
         let lines = this.content.split(/\r?\n/g);
+        lines = lines.filter(a => !a.trim().startsWith('//')) // remove all lines with comments
 
         lines.forEach((line, i) => {
             this.alLine.push();

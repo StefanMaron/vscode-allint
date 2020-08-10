@@ -70,7 +70,7 @@ Next up is the refactoring command and then uploading the summary to a report
 
 ## Release Notes
 
-### 0.1.5
+### 0.1.6
 Code comments are now excluded from processing. 
 
 ### 0.1.4

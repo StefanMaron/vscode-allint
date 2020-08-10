@@ -56,7 +56,7 @@ let maxnumberoffunctionlines: number;
 // as well.
 connection.onDidChangeConfiguration((change) => {
 	let settings = <Settings>change.settings;
-	
+
 	enabled = settings.allint.enabled;
 	statusbar = settings.allint.statusbar;
 	checkcommit = settings.allint.checkcommit;
@@ -77,17 +77,18 @@ function validateAlDocument(alDocument: TextDocument): void {
 		return;
 	}
 
-	let alDocumentWithoutBlockComments = alDocument.getText().replace(/\/\*.*?\*\//isg,''); // remove all block comments before splitting
-	let lines = alDocumentWithoutBlockComments.split(/\r?\n/g);
-	lines = lines.filter(a => !a.trim().startsWith('//')) // remove all lines with comments
+	let alDocumentWithoutBlockComments = alDocument.getText().replace(/\/\*.*?\*\//isg, ''); // remove all block comments before splitting
 
-	let myObject = new alObject(alDocument.getText(), hungariannotationoptions);
+	let myObject = new alObject(alDocumentWithoutBlockComments, hungariannotationoptions);
 
 	if (checkdrilldownpageid)
 		checkForMissingDrillDownPageId(diagnostics, myObject);
 
 	if (checklookuppageid)
 		checkForMissingLookupPageId(diagnostics, myObject);
+
+	let lines = alDocumentWithoutBlockComments.split(/\r?\n/g);
+	lines = lines.filter(a => !a.trim().startsWith('//')) // remove all lines with comments
 
 	lines.forEach((line, CurrentLineNo) => {
 
@@ -104,7 +105,7 @@ function validateAlDocument(alDocument: TextDocument): void {
 				checkFunctionReservedWord(alFunction, line, diagnostics, CurrentLineNo);
 
 				if (checkhungariannotation)
-					checkFunctionForHungarianNotation(alFunction, line, diagnostics, CurrentLineNo);					
+					checkFunctionForHungarianNotation(alFunction, line, diagnostics, CurrentLineNo);
 			}
 		});
 

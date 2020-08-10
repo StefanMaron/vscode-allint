@@ -44,6 +44,7 @@ export class alFunction {
         }
         this.name = this.name.trim();
         let lines = this.content.toUpperCase().split(/\r?\n/g);
+        lines = lines.filter(a => !a.trim().startsWith('//')) // remove all lines with comments
 
         var inCodeSection: boolean = false;
         var inVariableSection: boolean = false;
