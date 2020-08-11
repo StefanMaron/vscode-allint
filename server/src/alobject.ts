@@ -74,7 +74,7 @@ export class alObject {
             if (line.trim().toUpperCase().includes('BEGIN') || line.trim().toUpperCase().includes('CASE ')) {
                 beginEnd += 1;
             }
-            if (line.trim().toUpperCase().includes('END;')) {
+            if (line.trim().toUpperCase().includes('END;') || line.trim().toUpperCase().includes('END ELSE')) {
                 beginEnd -= 1;
                 
                 if (beginEnd == 0) {
