@@ -10,7 +10,7 @@ import { handlerApplyTextEdits } from './commands';
 
 export function activate(context: ExtensionContext) {
 
-	console.log('The NAV-Skills Clean Code Extension is loaded...');
+	console.log('The AL Lint Extension is loaded...');
 	
 	// The server is implemented in node
 	let serverModule = context.asAbsolutePath(path.join('server', 'server.js'));

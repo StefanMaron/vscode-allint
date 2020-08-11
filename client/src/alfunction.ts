@@ -94,8 +94,10 @@ export class alFunction {
         this.length = getHalstead(this.businessLogic, false);
         this.vocabulary = getHalstead(this.businessLogic, true);
 
-        this.cycolomaticComplexity = (this.contentUpperCase.split("IF ").length - 1) +
-            (this.contentUpperCase.split("CASE ").length - 1) + (this.contentUpperCase.split("ELSE ").length - 1);
+        this.cycolomaticComplexity =
+            ((this.contentUpperCase.match(/if\s{1}/gim) || []).length) +
+            ((this.contentUpperCase.match(/(?<=case.*?)(?<!:):(?!:|=)(?=.*?end;)/gism) || []).length) +
+            ((this.contentUpperCase.match(/^\s*?(else|else begin|end else begin)\s*?$/gmi) || []).length);
 
         this.halsteadVolume = this.length * Math.log2(this.vocabulary);
         this.maintainabilityIndex = Math.round(Math.max(0, (171 - 5.2 * Math.log(this.halsteadVolume) - 0.23 * (this.cycolomaticComplexity) - 16.2 * Math.log(this.numberOfLines)) * 100 / 171));

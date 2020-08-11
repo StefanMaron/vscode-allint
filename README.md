@@ -70,6 +70,9 @@ Next up is the refactoring command and then uploading the summary to a report
 
 ## Release Notes
 
+### 0.1.7
+Fixes on maintainability index and cycolomatic complexity
+
 ### 0.1.6
 Code comments are now excluded from processing. 
 
