@@ -76,7 +76,7 @@ export class alObject {
             }
             if (line.trim().toUpperCase().includes('END;') || line.trim().toUpperCase().includes('END ELSE')) {
                 beginEnd -= 1;
-                
+
                 if (beginEnd == 0) {
                     inFunction = false;
                     this.alFunction.push();
@@ -86,6 +86,7 @@ export class alObject {
                         this.maintainabilityIndex = this.alFunction[p].maintainabilityIndex;
                     }
                     functionContent = "";
+                    firstTime = false;
                 }
             }
             this.alLine[i].isCode = beginEnd >= 1;

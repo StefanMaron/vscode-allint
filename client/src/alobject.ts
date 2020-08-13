@@ -73,16 +73,17 @@ export class alObject {
             }
             if (line.trim().toUpperCase().includes('END;') || line.trim().toUpperCase().includes('END ELSE')) {
                 beginEnd -= 1;
-                
+
                 if (beginEnd == 0) {
                     inFunction = false;
                     this.alFunction.push();
                     p++;
-                    this.alFunction[p] = new alFunction(functionContent, startsAt, i);
+                    this.alFunction[p] = new alFunction(functionContent, startsAt, i + 1);
                     if (this.alFunction[p].maintainabilityIndex < this.maintainabilityIndex) {
                         this.maintainabilityIndex = this.alFunction[p].maintainabilityIndex;
                     }
                     functionContent = "";
+                    firstTime = false;
                 }
             }
             this.alLine[i].isCode = beginEnd >= 1;
@@ -212,7 +213,7 @@ function validProcedureName(value: string): boolean {
     return false;
 }
 
-function getObjectType(str : string) {
+function getObjectType(str: string) {
     switch (getCharsBefore(str.toUpperCase(), " ")) {
         case "TABLE":
             return (1);
@@ -223,7 +224,7 @@ function getObjectType(str : string) {
     return (0);
 }
 
-function getCharsBefore(str : string, chr : string) {
+function getCharsBefore(str: string, chr: string) {
     var index = str.indexOf(chr);
     if (index != -1) {
         return (str.substring(0, index));
