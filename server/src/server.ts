@@ -88,9 +88,11 @@ function validateAlDocument(alDocument: TextDocument): void {
 		checkForMissingLookupPageId(diagnostics, myObject);
 
 	let lines = alDocumentWithoutBlockComments.split(/\r?\n/g);
-	lines = lines.filter(a => !a.trim().startsWith('//')) // remove all lines with comments
 
 	lines.forEach((line, CurrentLineNo) => {
+		if (line.trim().startsWith('//')) {
+			return; // skip comment lines
+		}
 
 		if (myObject.alLine[CurrentLineNo].isCode) {
 			if (checkcommit)

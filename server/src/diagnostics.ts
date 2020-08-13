@@ -146,7 +146,7 @@ export function checkVariableForIntegerDeclaration(alVariable: alVariable, line:
 
 export function checkVariableForTemporary(alVariable: alVariable, line: string, diagnostics: any, i: number) {
     if ((alVariable.isTemporary) && (alVariable.hasWrongTempName())) {
-        let index = line.toUpperCase().indexOf(alVariable.objectId);
+        let index = line.toUpperCase().indexOf(alVariable.name);
         if (index >= 0) {
             diagnostics.push({
                 severity: DiagnosticSeverity.Warning,
