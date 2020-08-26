@@ -16,6 +16,7 @@ let documents: TextDocuments = new TextDocuments();
 // for open, change and close text document events
 documents.listen(connection);
 
+
 // After the server has started the client sends an initilize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilites. 
 let workspaceRoot: string;
@@ -43,40 +44,65 @@ interface Settings {
 	allint: AlLintSettings;
 }
 
-let enabled: boolean;
-let statusbar: boolean;
-let checkcommit: boolean;
-let checkhungariannotation: boolean;
-let checkspecialcharactersinvariablenames: boolean;
-let hungariannotationoptions: string;
-let checkdrilldownpageid: boolean;
-let checklookuppageid: boolean;
-let maxnumberoffunctionlines: number;
+let settings: Settings;
 // The settings have changed. Is send on server activation
 // as well.
 connection.onDidChangeConfiguration((change) => {
-	let settings = <Settings>change.settings;
+	settings = <Settings>change.settings;
 
-	enabled = settings.allint.enabled;
-	statusbar = settings.allint.statusbar;
-	checkcommit = settings.allint.checkcommit;
-	checkhungariannotation = settings.allint.checkhungariannotation;
-	checkspecialcharactersinvariablenames = settings.allint.checkspecialcharactersinvariablenames;
-	hungariannotationoptions = settings.allint.hungariannotationoptions;
-	checkdrilldownpageid = settings.allint.checkdrilldownpageid;
-	checklookuppageid = settings.allint.checklookuppageid;
-	maxnumberoffunctionlines = settings.allint.maxnumberoffunctionlines;
 	// Revalidate any open text documents
 	documents.all().forEach(validateAlDocument);
 });
 
 function validateAlDocument(alDocument: TextDocument): void {
 	let diagnostics: Diagnostic[] = [];
-	if (!enabled) {
+	if (!settings.allint.enabled) {
 		connection.sendDiagnostics({ uri: alDocument.uri, diagnostics });
 		return;
 	}
 
+	var tempsettings = settings.allint;
+	if (tempsettings.trace)
+		delete tempsettings.trace;
+
+	var parameters = [alDocument.getText().replace('"', '\"'), JSON.stringify(tempsettings)];
+	// console.log(tempsettings);
+
+	var results;
+	// https://stackoverflow.com/questions/14332721/node-js-spawn-child-process-and-get-terminal-output-live
+	var exec = require('child_process').execFile;
+	let allinter = function (parameters: string[]) {
+		exec(__dirname + '/../bin/al-linter.exe', parameters, function (err, data) {
+			// if (err) {
+			// 	console.error(`exec error: ${err}`);
+			// 	return;
+			// }
+			results = data;
+		});
+	}
+
+	allinter(parameters);
+
+	if (results)
+		console.log(results);
+	return;
+
+	var results = validateAlDocument(alDocument, true);
+
+	results.forEach((result: { severity: any; start: { lineNo: any; characterPos: any; }; end: { lineNo: any; characterPos: any; }; message: any; }) => {
+		diagnostics.push({
+			severity: result.severity,
+			range: {
+				start: { line: result.start.lineNo, character: result.start.characterPos },
+				end: { line: result.end.lineNo, character: result.end.characterPos }
+			},
+			message: result.message,
+			source: result.message
+			//code: 'Refactor'
+		});
+	});
+
+	return;
 	let alDocumentWithoutBlockComments = alDocument.getText().replace(/\/\*.*?\*\//isg, ''); // remove all block comments before splitting
 
 	let myObject = new alObject(alDocumentWithoutBlockComments, hungariannotationoptions);
