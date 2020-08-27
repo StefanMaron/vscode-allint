@@ -1,7 +1,6 @@
 'use strict';
 import * as vscode from 'vscode';
 import { window, StatusBarItem, StatusBarAlignment } from "vscode";
-import { alObject } from './alobject';
 
 
 export class MaintainabilityIndex {
@@ -22,31 +21,58 @@ export class MaintainabilityIndex {
         }
 
         let doc = editor.document;
-
+    
         // Only update status if an Markdown file
         if (doc.languageId === "al") {
-            let myObject = new alObject(editor);
 
-            let config = Object.assign({}, vscode.workspace.getConfiguration('allint'));
+            let settings = Object.assign({}, vscode.workspace.getConfiguration('allint'));
+            if (settings.statusbar) {
+                if (settings.trace)
+                    delete settings.trace;
 
-            if (config.statusbar) {
-                let maintainabilityIndex = myObject.getMaintainabilityIndex(editor.document.lineAt(editor.selection.active.line));
-                let cyclomaticComplexity = myObject.getCyclomaticComplexity(editor.document.lineAt(editor.selection.active.line));
-                var currentFunctionName: string = myObject.getCurrentFunction(editor.document.lineAt(editor.selection.active.line));
+                var uri = doc.uri;
+                var parameters = ["GETOBJECT", uri.path.replace(/[a-z]\:\//, ''), JSON.stringify(settings)]; // TODO:awdkbajwhd
+                // console.log(parameters);
+                // return;
+                let currentRec = this;
+                var exec = require('child_process').execFile;
+                let allinter = function (parameters: string[]) {
+                    exec(__dirname + '/../../bin/al-linter.exe', parameters, function (err, data) {
+                        if (err) {
+                            console.error(`exec error: ${err}`);
+                            return;
+                        }
+                        var results = JSON.parse(data);
+                        var currentLineNo = editor.selection.active.line;
 
-                var theText = currentFunctionName + ` - Maintainability Index : ${maintainabilityIndex}` + ` Cyclomatic Complexity : ${cyclomaticComplexity}`;
-                // Update the status bar
-                this._statusBarItem.text = maintainabilityIndex !== 1 ? theText : 'Maintainability Index Undefined';
-                if (maintainabilityIndex >= 20) {
-                    this._statusBarItem.color = 'lightgreen';
+                        results = results.alFunction.filter(el => el.startsAtLineNo <= currentLineNo && el.endsAtLineNo >= currentLineNo)[0];
+                        // console.log(editor.selection.active.line);
+                        // console.log(results);
+                        // return;
+
+                        let maintainabilityIndex = results.maintainabilityIndex;
+                        let cyclomaticComplexity = results.cycolomaticComplexity;
+                        var currentFunctionName = results.name;
+
+                        var theText = currentFunctionName + ` - Maintainability Index : ${maintainabilityIndex}` + ` Cyclomatic Complexity : ${cyclomaticComplexity}`;
+
+                        currentRec._statusBarItem.text = maintainabilityIndex !== 1 ? theText : 'Maintainability Index Undefined';
+                        
+                        if (maintainabilityIndex >= 20) {
+                            currentRec._statusBarItem.color = 'lightgreen';
+                        }
+                        else if (maintainabilityIndex >= 10) {
+                            currentRec._statusBarItem.color = 'orange';
+                        }
+                        else if (maintainabilityIndex != 0) {
+                            currentRec._statusBarItem.color = 'red';
+                        }
+                        currentRec._statusBarItem.show();
+
+                    });
                 }
-                else if (maintainabilityIndex >= 10) {
-                    this._statusBarItem.color = 'orange';
-                }
-                else if (maintainabilityIndex != 0) {
-                    this._statusBarItem.color = 'red';
-                }
-                this._statusBarItem.show();
+
+                allinter(parameters);
             }
         } else {
             this._statusBarItem.hide();

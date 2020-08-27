@@ -1,9 +1,7 @@
 'use strict';
 import {
-	createConnection, TextDocuments, TextDocument, ProposedFeatures, Diagnostic, InitializeResult, combineConsoleFeatures
+	createConnection, TextDocuments, TextDocument, ProposedFeatures, Diagnostic, InitializeResult,
 } from 'vscode-languageserver';
-import { alObject } from './alobject';
-import { checkForCommit, checkForWithInTableAndPage, checkFunctionReservedWord, checkFunctionForHungarianNotation, checkFieldForHungarianNotation, checkVariableForHungarianNotation, checkVariableForIntegerDeclaration, checkVariableForTemporary, checkVariableForTextConst, checkVariableForReservedWords, checkVariableNameForUnderScore, checkForMissingDrillDownPageId, checkForMissingLookupPageId, checkFunctionForNoOfLines } from './diagnostics';
 import { onCodeActionHandler } from './codeActions';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
@@ -35,7 +33,10 @@ connection.onCodeAction(onCodeActionHandler(documents));
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-documents.onDidChangeContent((change) => {
+documents.onDidSave((change) => {
+	validateAlDocument(change.document);
+});
+documents.onDidOpen((change) => {
 	validateAlDocument(change.document);
 });
 
@@ -65,100 +66,35 @@ function validateAlDocument(alDocument: TextDocument): void {
 	if (tempsettings.trace)
 		delete tempsettings.trace;
 
-	var parameters = [alDocument.getText().replace('"', '\"'), JSON.stringify(tempsettings)];
-	// console.log(tempsettings);
-
-	var results;
-	// https://stackoverflow.com/questions/14332721/node-js-spawn-child-process-and-get-terminal-output-live
+	var parameters = [alDocument.uri.replace(/[a-z]\%3\A\//, ''), JSON.stringify(tempsettings)];
 	var exec = require('child_process').execFile;
 	let allinter = function (parameters: string[]) {
-		exec(__dirname + '/../bin/al-linter.exe', parameters, function (err, data) {
-			// if (err) {
-			// 	console.error(`exec error: ${err}`);
-			// 	return;
-			// }
-			results = data;
+		exec(__dirname + '/../bin/al-linter.exe', parameters, function (err: any, data: string) {
+			if (err) {
+				console.error(`exec error: ${err}`);
+				return;
+			}
+			if (data && data !== '[]') {
+				var results = JSON.parse(data);
+
+				results.forEach((result: { severity: any; start: { lineNo: any; characterPos: any; }; end: { lineNo: any; characterPos: any; }; message: any; source: any; }) => {
+					diagnostics.push({
+						severity: result.severity,
+						range: {
+							start: { line: result.start.lineNo, character: result.start.characterPos },
+							end: { line: result.end.lineNo, character: result.end.characterPos }
+						},
+						message: result.message,
+						source: result.source
+						//code: 'Refactor'
+					});
+				});
+			}
+			connection.sendDiagnostics({ uri: alDocument.uri, diagnostics });
 		});
 	}
 
 	allinter(parameters);
-
-	if (results)
-		console.log(results);
-	return;
-
-	var results = validateAlDocument(alDocument, true);
-
-	results.forEach((result: { severity: any; start: { lineNo: any; characterPos: any; }; end: { lineNo: any; characterPos: any; }; message: any; }) => {
-		diagnostics.push({
-			severity: result.severity,
-			range: {
-				start: { line: result.start.lineNo, character: result.start.characterPos },
-				end: { line: result.end.lineNo, character: result.end.characterPos }
-			},
-			message: result.message,
-			source: result.message
-			//code: 'Refactor'
-		});
-	});
-
-	return;
-	let alDocumentWithoutBlockComments = alDocument.getText().replace(/\/\*.*?\*\//isg, ''); // remove all block comments before splitting
-
-	let myObject = new alObject(alDocumentWithoutBlockComments, hungariannotationoptions);
-
-	if (checkdrilldownpageid)
-		checkForMissingDrillDownPageId(diagnostics, myObject);
-
-	if (checklookuppageid)
-		checkForMissingLookupPageId(diagnostics, myObject);
-
-	let lines = alDocumentWithoutBlockComments.split(/\r?\n/g);
-	lines = lines.filter(a => !a.trim().startsWith('//')) // remove all lines with comments
-
-	lines.forEach((line, CurrentLineNo) => {
-
-		if (myObject.alLine[CurrentLineNo].isCode) {
-			if (checkcommit)
-				checkForCommit(line.toUpperCase(), diagnostics, CurrentLineNo);
-
-			checkForWithInTableAndPage(line.toUpperCase(), diagnostics, myObject, CurrentLineNo);
-		}
-
-		myObject.alFunction.forEach(alFunction => {
-			if (alFunction.startsAtLineNo == CurrentLineNo + 1) {
-				checkFunctionForNoOfLines(alFunction, line, diagnostics, CurrentLineNo, maxnumberoffunctionlines);
-				checkFunctionReservedWord(alFunction, line, diagnostics, CurrentLineNo);
-
-				if (checkhungariannotation)
-					checkFunctionForHungarianNotation(alFunction, line, diagnostics, CurrentLineNo);
-			}
-		});
-
-		myObject.alField.forEach(alField => {
-			if (alField.lineNumber == CurrentLineNo + 1) {
-				if (checkhungariannotation)
-					checkFieldForHungarianNotation(alField, line, diagnostics, CurrentLineNo);
-			}
-		});
-
-		myObject.alVariable.forEach(alVariable => {
-			if (alVariable.lineNumber == CurrentLineNo + 1) {
-				if (checkhungariannotation)
-					checkVariableForHungarianNotation(alVariable, line, diagnostics, CurrentLineNo);
-
-				checkVariableForIntegerDeclaration(alVariable, line, diagnostics, CurrentLineNo);
-				checkVariableForTemporary(alVariable, line, diagnostics, CurrentLineNo);
-				checkVariableForTextConst(alVariable, line, diagnostics, CurrentLineNo);
-				checkVariableForReservedWords(alVariable, line, diagnostics, CurrentLineNo);
-
-				if (checkspecialcharactersinvariablenames)
-					checkVariableNameForUnderScore(alVariable, line, diagnostics, CurrentLineNo);
-			}
-		});
-	})
-	// Send the computed diagnostics to VSCode.
-	connection.sendDiagnostics({ uri: alDocument.uri, diagnostics });
 }
 
 connection.onDidChangeWatchedFiles((_change) => {
