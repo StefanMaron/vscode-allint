@@ -3,7 +3,7 @@
     "displayName": "AL Lint",
     "description": "Check your code for maintainability and upgradeability",
     "license": "MIT",
-    "version": "0.1.9",
+    "version": "0.1.12",
     "publisher": "StefanMaron",
     "icon": "ALLint_icon.png",
     "engines": {
@@ -19,11 +19,18 @@
         "compile:client": "tsc -p client/tsconfig.json",
         "watch:client": "tsc -w -p client/tsconfig.json",
         "compile:server": "cd server && npm run installServer && cd .. && tsc -p server/tsconfig.json",
-        "watch:server": "cd server && npm run installServer && cd .. && tsc -w -p server/tsconfig.json"
+        "watch:server": "cd server && npm run installServer && cd .. && tsc -w -p server/tsconfig.json",
+        "rebuild": "electron-rebuild -f -w edge-js"
     },
     "devDependencies": {
-        "@types/mocha": "^2.2.42",
-        "@types/node": "^7.0.44",
-        "typescript": "^2.5.3"
+        "@types/mocha": "^2.2.48",
+        "@types/node": "^7.10.11",
+        "electron-rebuild": "^1.11.0",
+        "typescript": "^2.9.2"
+    },
+    "dependencies": {
+        "edge-js": "^14.3.1",
+        "electron": "^9.2.1",
+        "keytar": "^4.13.0"
     }
 }

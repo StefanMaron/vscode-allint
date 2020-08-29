@@ -1,9 +1,7 @@
 'use strict';
 import {
-	createConnection, TextDocuments, TextDocument, ProposedFeatures, Diagnostic, InitializeResult, combineConsoleFeatures
+	createConnection, TextDocuments, TextDocument, ProposedFeatures, Diagnostic, InitializeResult,
 } from 'vscode-languageserver';
-import { alObject } from './alobject';
-import { checkForCommit, checkForWithInTableAndPage, checkFunctionReservedWord, checkFunctionForHungarianNotation, checkFieldForHungarianNotation, checkVariableForHungarianNotation, checkVariableForIntegerDeclaration, checkVariableForTemporary, checkVariableForTextConst, checkVariableForReservedWords, checkVariableNameForUnderScore, checkForMissingDrillDownPageId, checkForMissingLookupPageId, checkFunctionForNoOfLines } from './diagnostics';
 import { onCodeActionHandler } from './codeActions';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport
@@ -15,6 +13,7 @@ let documents: TextDocuments = new TextDocuments();
 // Make the text document manager listen on the connection
 // for open, change and close text document events
 documents.listen(connection);
+
 
 // After the server has started the client sends an initilize request. The server receives
 // in the passed params the rootPath of the workspace plus the client capabilites. 
@@ -34,7 +33,10 @@ connection.onCodeAction(onCodeActionHandler(documents));
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-documents.onDidChangeContent((change) => {
+documents.onDidSave((change) => {
+	validateAlDocument(change.document);
+});
+documents.onDidOpen((change) => {
 	validateAlDocument(change.document);
 });
 
@@ -43,96 +45,56 @@ interface Settings {
 	allint: AlLintSettings;
 }
 
-let enabled: boolean;
-let statusbar: boolean;
-let checkcommit: boolean;
-let checkhungariannotation: boolean;
-let checkspecialcharactersinvariablenames: boolean;
-let hungariannotationoptions: string;
-let checkdrilldownpageid: boolean;
-let checklookuppageid: boolean;
-let maxnumberoffunctionlines: number;
+let settings: Settings;
 // The settings have changed. Is send on server activation
 // as well.
 connection.onDidChangeConfiguration((change) => {
-	let settings = <Settings>change.settings;
+	settings = <Settings>change.settings;
 
-	enabled = settings.allint.enabled;
-	statusbar = settings.allint.statusbar;
-	checkcommit = settings.allint.checkcommit;
-	checkhungariannotation = settings.allint.checkhungariannotation;
-	checkspecialcharactersinvariablenames = settings.allint.checkspecialcharactersinvariablenames;
-	hungariannotationoptions = settings.allint.hungariannotationoptions;
-	checkdrilldownpageid = settings.allint.checkdrilldownpageid;
-	checklookuppageid = settings.allint.checklookuppageid;
-	maxnumberoffunctionlines = settings.allint.maxnumberoffunctionlines;
 	// Revalidate any open text documents
 	documents.all().forEach(validateAlDocument);
 });
 
 function validateAlDocument(alDocument: TextDocument): void {
 	let diagnostics: Diagnostic[] = [];
-	if (!enabled) {
+	if (!settings.allint.enabled) {
 		connection.sendDiagnostics({ uri: alDocument.uri, diagnostics });
 		return;
 	}
 
-	let alDocumentWithoutBlockComments = alDocument.getText().replace(/\/\*.*?\*\//isg, ''); // remove all block comments before splitting
+	var tempsettings = settings.allint;
+	if (tempsettings.trace)
+		delete tempsettings.trace;
 
-	let myObject = new alObject(alDocumentWithoutBlockComments, hungariannotationoptions);
-
-	if (checkdrilldownpageid)
-		checkForMissingDrillDownPageId(diagnostics, myObject);
-
-	if (checklookuppageid)
-		checkForMissingLookupPageId(diagnostics, myObject);
-
-	let lines = alDocumentWithoutBlockComments.split(/\r?\n/g);
-	lines = lines.filter(a => !a.trim().startsWith('//')) // remove all lines with comments
-
-	lines.forEach((line, CurrentLineNo) => {
-
-		if (myObject.alLine[CurrentLineNo].isCode) {
-			if (checkcommit)
-				checkForCommit(line.toUpperCase(), diagnostics, CurrentLineNo);
-
-			checkForWithInTableAndPage(line.toUpperCase(), diagnostics, myObject, CurrentLineNo);
-		}
-
-		myObject.alFunction.forEach(alFunction => {
-			if (alFunction.startsAtLineNo == CurrentLineNo + 1) {
-				checkFunctionForNoOfLines(alFunction, line, diagnostics, CurrentLineNo, maxnumberoffunctionlines);
-				checkFunctionReservedWord(alFunction, line, diagnostics, CurrentLineNo);
-
-				if (checkhungariannotation)
-					checkFunctionForHungarianNotation(alFunction, line, diagnostics, CurrentLineNo);
+	var parameters = [alDocument.uri.replace(/[a-z]\%3\A\//, ''), JSON.stringify(tempsettings)];
+	var exec = require('child_process').execFile;
+	let allinter = function (parameters: string[]) {
+		exec(__dirname + '/../bin/al-linter.exe', parameters, function (err: any, data: string) {
+			if (err) {
+				console.error(`exec error: ${err}`);
+				return;
 			}
-		});
+			if (data && data !== '[]') {
+				var results = JSON.parse(data);
 
-		myObject.alField.forEach(alField => {
-			if (alField.lineNumber == CurrentLineNo + 1) {
-				if (checkhungariannotation)
-					checkFieldForHungarianNotation(alField, line, diagnostics, CurrentLineNo);
+				results.forEach((result) => {
+					diagnostics.push({
+						severity: result.severity,
+						range: {
+							start: { line: result.start.lineNo, character: result.start.characterPos },
+							end: { line: result.end.lineNo, character: result.end.characterPos }
+						},
+						message: result.message,
+						source: result.source,
+						code: result.code
+					});
+				});
 			}
+			connection.sendDiagnostics({ uri: alDocument.uri, diagnostics });
 		});
+	}
 
-		myObject.alVariable.forEach(alVariable => {
-			if (alVariable.lineNumber == CurrentLineNo + 1) {
-				if (checkhungariannotation)
-					checkVariableForHungarianNotation(alVariable, line, diagnostics, CurrentLineNo);
-
-				checkVariableForIntegerDeclaration(alVariable, line, diagnostics, CurrentLineNo);
-				checkVariableForTemporary(alVariable, line, diagnostics, CurrentLineNo);
-				checkVariableForTextConst(alVariable, line, diagnostics, CurrentLineNo);
-				checkVariableForReservedWords(alVariable, line, diagnostics, CurrentLineNo);
-
-				if (checkspecialcharactersinvariablenames)
-					checkVariableNameForUnderScore(alVariable, line, diagnostics, CurrentLineNo);
-			}
-		});
-	})
-	// Send the computed diagnostics to VSCode.
-	connection.sendDiagnostics({ uri: alDocument.uri, diagnostics });
+	allinter(parameters);
 }
 
 connection.onDidChangeWatchedFiles((_change) => {

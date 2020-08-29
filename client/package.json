@@ -3,7 +3,7 @@
     "displayName": "AL Lint",
     "description": "Check your code for maintainability and upgradability",
     "license": "MIT",
-    "version": "0.1.9",
+    "version": "0.1.12",
     "publisher": "StefanMaron",
     "icon": "ALLint_icon.png",
     "repository": {
@@ -60,16 +60,16 @@
                 },
                 "allint.checkdrilldownpageid": {
                     "type": "boolean",
-                    "default": "false",
+                    "default": true,
                     "description": "Checks if every Table has a DrillDownPageID"
                 },
                 "allint.checklookuppageid": {
                     "type": "boolean",
-                    "default": "false",
+                    "default": true,
                     "description": "Checks if every Table has a LookupPageID"
                 },
                 "allint.maxnumberoffunctionlines": {
-                    "type":"number",
+                    "type": "number",
                     "default": 40,
                     "description": "The limit how many lines a function should have. Blank lines and comments are not taken into account. Set to 0 to deactivate."
                 },
@@ -98,6 +98,7 @@
         ]
     },
     "dependencies": {
-        "vscode-languageclient": "^4.1.4"
+        "vscode-languageclient": "^4.1.4",
+        "edge-js": "^14.3.1"
     }
 }

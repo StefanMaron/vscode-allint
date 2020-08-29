@@ -1,7 +1,7 @@
 'use strict';
 import * as vscode from 'vscode';
 import { TextEditor, window } from "vscode";
-import { alObject } from './alobject';
+// import { alObject } from './alobject';
 
 export function refactor(editor: TextEditor) {
 
@@ -14,7 +14,7 @@ export function refactor(editor: TextEditor) {
         return;
     }
     let alCode = editor.document.getText(oldSelection);
-    let myObject = new alObject(editor);
+    // let myObject = new alObject(editor);
 
     //console.log(alCode);
     var newFunctioName: string = "foo";
@@ -24,12 +24,12 @@ export function refactor(editor: TextEditor) {
     //        value: 'foo'
     //    });
 
-    editor.edit(editBuilder => {
-        editBuilder.replace(new vscode.Position(myObject.lastLineNumber, 0),
-            getProcedureTemplate(newFunctioName, alCode));
+    // editor.edit(editBuilder => {
+    //     editBuilder.replace(new vscode.Position(myObject.lastLineNumber, 0),
+    //         getProcedureTemplate(newFunctioName, alCode));
 
-        editBuilder.replace(oldSelection, newFunctioName + '; // Refactored, remove comment when happy\n');
-    });
+    //     editBuilder.replace(oldSelection, newFunctioName + '; // Refactored, remove comment when happy\n');
+    // });
 
 }
 
