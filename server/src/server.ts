@@ -77,7 +77,7 @@ function validateAlDocument(alDocument: TextDocument): void {
 			if (data && data !== '[]') {
 				var results = JSON.parse(data);
 
-				results.forEach((result: { severity: any; start: { lineNo: any; characterPos: any; }; end: { lineNo: any; characterPos: any; }; message: any; source: any; }) => {
+				results.forEach((result) => {
 					diagnostics.push({
 						severity: result.severity,
 						range: {
@@ -85,8 +85,8 @@ function validateAlDocument(alDocument: TextDocument): void {
 							end: { line: result.end.lineNo, character: result.end.characterPos }
 						},
 						message: result.message,
-						source: result.source
-						//code: 'Refactor'
+						source: result.source,
+						code: result.code
 					});
 				});
 			}
