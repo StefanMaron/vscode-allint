@@ -3,7 +3,7 @@
     "displayName": "AL Lint",
     "description": "Check your code for maintainability and upgradability",
     "license": "MIT",
-    "version": "0.1.12",
+    "version": "0.2.0",
     "publisher": "StefanMaron",
     "icon": "ALLint_icon.png",
     "repository": {
@@ -98,7 +98,7 @@
         ]
     },
     "dependencies": {
-        "vscode-languageclient": "^4.1.4",
-        "edge-js": "^14.3.1"
-    }
+        "vscode-languageclient": "^4.1.4"
+    },
+    "devDependencies": {}
 }

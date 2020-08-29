@@ -70,6 +70,18 @@ Next up is the refactoring command and then uploading the summary to a report
 
 ## Release Notes
 
+### 0.2.0
+
+With this update the core code which does all the analyzing, is moved to c#. See [al-linter](https://github.com/StefanMaron/al-linter).
+- Added message codes for easier reference
+- Issues Fixed
+  - [Incorrect warning for List type variables #9](https://github.com/StefanMaron/vscode-allint/issues/9)
+  - [Runtime 5 Wrong Warning: Variable names should not contain special characters or whitespaces in their name #8](https://github.com/StefanMaron/vscode-allint/issues/8)
+  - [Incorrect warning about reserved word as part of a name #7](https://github.com/StefanMaron/vscode-allint/issues/7)
+  - [Incorrect warning when multiple variables are declared in one line #5](https://github.com/StefanMaron/vscode-allint/issues/5)
+  - [Incorrect warning for temporary varaiable #3](https://github.com/StefanMaron/vscode-allint/issues/3)
+  - [Incorrect positioning and variable name detection #2](https://github.com/StefanMaron/vscode-allint/issues/2)
+
 ### 0.1.7
 Fixes on maintainability index and cycolomatic complexity
 
