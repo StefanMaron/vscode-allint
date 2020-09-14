@@ -21,7 +21,7 @@ export class MaintainabilityIndex {
         }
 
         let doc = editor.document;
-    
+
         // Only update status if an Markdown file
         if (doc.languageId === "al") {
 
@@ -49,24 +49,29 @@ export class MaintainabilityIndex {
                         // console.log(editor.selection.active.line);
                         // console.log(results);
                         // return;
+                        if (results) {
+                            let maintainabilityIndex = results.maintainabilityIndex;
+                            let cyclomaticComplexity = results.cycolomaticComplexity;
+                            var currentFunctionName = results.name;
 
-                        let maintainabilityIndex = results.maintainabilityIndex;
-                        let cyclomaticComplexity = results.cycolomaticComplexity;
-                        var currentFunctionName = results.name;
+                            var theText = currentFunctionName + ` - Maintainability Index : ${maintainabilityIndex}` + ` Cyclomatic Complexity : ${cyclomaticComplexity}`;
 
-                        var theText = currentFunctionName + ` - Maintainability Index : ${maintainabilityIndex}` + ` Cyclomatic Complexity : ${cyclomaticComplexity}`;
+                            currentRec._statusBarItem.text = maintainabilityIndex !== 1 ? theText : 'Maintainability Index Undefined';
 
-                        currentRec._statusBarItem.text = maintainabilityIndex !== 1 ? theText : 'Maintainability Index Undefined';
-                        
-                        if (maintainabilityIndex >= 20) {
+                            if (maintainabilityIndex >= 20) {
+                                currentRec._statusBarItem.color = 'lightgreen';
+                            }
+                            else if (maintainabilityIndex >= 10) {
+                                currentRec._statusBarItem.color = 'orange';
+                            }
+                            else if (maintainabilityIndex != 0) {
+                                currentRec._statusBarItem.color = 'red';
+                            }
+                        } else {
                             currentRec._statusBarItem.color = 'lightgreen';
+                            currentRec._statusBarItem.text = 'Not inside a function';
                         }
-                        else if (maintainabilityIndex >= 10) {
-                            currentRec._statusBarItem.color = 'orange';
-                        }
-                        else if (maintainabilityIndex != 0) {
-                            currentRec._statusBarItem.color = 'red';
-                        }
+
                         currentRec._statusBarItem.show();
 
                     });

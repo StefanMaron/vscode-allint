@@ -3,7 +3,7 @@
     "displayName": "AL Lint",
     "description": "Check your code for maintainability and upgradeability",
     "license": "MIT",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "publisher": "StefanMaron",
     "icon": "ALLint_icon.png",
     "engines": {

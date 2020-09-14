@@ -70,6 +70,10 @@ Next up is the refactoring command and then uploading the summary to a report
 
 ## Release Notes
 
+### 0.2.1
+
+Bugfix in the code metrics
+
 ### 0.2.0
 
 With this update the core code which does all the analyzing, is moved to c#. See [al-linter](https://github.com/StefanMaron/al-linter).
