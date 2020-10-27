@@ -3,7 +3,7 @@
     "displayName": "AL Lint",
     "description": "Check your code for maintainability and upgradability",
     "license": "MIT",
-    "version": "0.2.1",
+    "version": "0.2.4",
     "publisher": "StefanMaron",
     "icon": "ALLint_icon.png",
     "repository": {
@@ -98,7 +98,8 @@
         ]
     },
     "dependencies": {
-        "vscode-languageclient": "^4.1.4"
+        "vscode-languageclient": "^4.1.4",
+        "dotnet-3.1": "*"
     },
     "devDependencies": {}
 }

@@ -70,6 +70,12 @@ Next up is the refactoring command and then uploading the summary to a report
 
 ## Release Notes
 
+### 0.2.4
+
+- Added .NetCore 3.1 as dependecy [#13](https://github.com/StefanMaron/vscode-allint/issues/13)
+- Bugfix related to `internal procedures` 
+- [Wrong warning for missing DrillDownPageID/LookupPageID #13](https://github.com/StefanMaron/vscode-allint/issues/12)
+
 ### 0.2.1
 
 Bugfix in the code metrics
